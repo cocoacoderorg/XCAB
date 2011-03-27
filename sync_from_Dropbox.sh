@@ -34,11 +34,11 @@ do
 	#Update the list of available branches so the user can find them by looking at Dropbox
 	git branch -a | sed -e 's/^..//' -e 's/ ->.*$//' -e 's,^remotes/,,' > "${XCAB_HOME}/$src_dir/branches.txt"
 	
+	cd "${XCAB_HOME}/$src_dir"
+	GIT_DIR="${SCM_WORKING_DIR}/$src_dir/.git"
+	export GIT_DIR
 	
 	for entry in * ; do
-		cd "${XCAB_HOME}/$src_dir"
-		GIT_DIR="${SCM_WORKING_DIR}/$src_dir/.git"
-		export GIT_DIR
 		
 		active_branch=""
 		if [ -d "$entry" ] ; then
@@ -118,6 +118,7 @@ do
 			fi
 		fi
 		unset GIT_DIR
+		cd "${XCAB_HOME}/$src_dir"
 	done 
 
 done
