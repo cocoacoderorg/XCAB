@@ -66,8 +66,8 @@ do
 					#directory doesn't match an existing branch
 					for potential_branch in `grep -v '/' "${XCAB_HOME}/$src_dir/branches.txt"`; do
 						substring_match=`echo $entry | grep "^potential_branch"`
-						if [ x"substring_match" != "x" ] ; then
-							active_branch=potential_branch
+						if [ x"$substring_match" != "x" ] ; then
+							active_branch=$potential_branch
 						fi
 					done
 					if [ x"$active_branch" != "x" ] ; then
@@ -78,8 +78,8 @@ do
 						for potential_branch in `grep '/' "${XCAB_HOME}/$src_dir/branches.txt"`; do
 							localized_potential_branch="`echo $potential_branch | sed -e 's,^[^/]*/,,'`"
 							substring_match=`echo $entry | grep "^localized_potential_branch"`
-							if [ x"substring_match" != "x" ] ; then
-								active_branch=potential_branch
+							if [ x"$substring_match" != "x" ] ; then
+								active_branch=$potential_branch
 							fi
 						done
 						if [ x"$active_branch" != "x" ] ; then
@@ -97,6 +97,7 @@ do
 				cd ..
 				#TODO - wait for Dropbox to finish syncing
 				mv tmp_checkout_dir "$entry"
+				git branch -a | sed -e 's/^..//' -e 's/ ->.*$//' -e 's,^remotes/,,' > "${XCAB_HOME}/$src_dir/branches.txt"
 			fi
 		fi
 	done 
