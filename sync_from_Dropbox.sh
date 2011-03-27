@@ -34,24 +34,25 @@ do
 	#Update the list of available branches so the user can find them by looking at Dropbox
 	git branch -a | sed -e 's/^..//' -e 's/ ->.*$//' -e 's,^remotes/,,' > "${XCAB_HOME}/$src_dir/branches.txt"
 	
-	cd "${XCAB_HOME}/$src_dir"
 	
 	for entry in * ; do
+		cd "${XCAB_HOME}/$src_dir"
+		GIT_DIR="${SCM_WORKING_DIR}/$src_dir/.git"
+		export GIT_DIR
+		
 		active_branch=""
 		if [ -d "$entry" ] ; then
 			#This is a directory - we need to decide if we need to do anything with this
 			cd "${XCAB_HOME}/$src_dir/$entry"
 			item_count="`ls -1 | wc -l | sed -e 's/[^0-9]//g'`"
-			cd "${XCAB_HOME}/$src_dir"
 			
 			if [ "$item_count" == "0" ] ; then
 				#Empty directory, need to check the correct branch out into it
 				
+				cd "${XCAB_HOME}/$src_dir"
 				rm -rf tmp_checkout_dir
 				mv $entry tmp_checkout_dir
 				cd tmp_checkout_dir
-				GIT_DIR="${SCM_WORKING_DIR}/$src_dir/.git"
-				export GIT_DIR
 				
 				#Now we need to figure out the right branch
 				if [ -f "${GIT_DIR}/refs/heads/$entry" ] ; then
@@ -93,13 +94,30 @@ do
 					git branch "$entry" master
 					active_branch="$entry"
 				fi
+				git checkout -f $active_branch
 				git reset --hard $active_branch
 				cd ..
 				#TODO - wait for Dropbox to finish syncing
 				mv tmp_checkout_dir "$entry"
+				
 				git branch -a | sed -e 's/^..//' -e 's/ ->.*$//' -e 's,^remotes/,,' > "${XCAB_HOME}/$src_dir/branches.txt"
+			else
+				#This directory has files in it, see if any of them have changed
+				our_status="`git status | grep 'nothing to commit'`"
+				if [ x"$our_status" == "x" ] ; then
+					#Something changed, check it in
+					git checkout "$entry"
+					git add .
+					comment="`git diff | grep '^+[^+]' | sed -e 's/^\+//' | egrep '#|//|/\*|\*/'
+					#TODO: Make comment understand other comment styles like in between /* */ or # only for other languages
+					if [ x"$comment" == "x" ] ; then
+						comment = "Checked in from Dropbox on `date`"
+					fi
+					git commit -a -m "$comment"
+				fi
 			fi
 		fi
+		unset GIT_DIR
 	done 
 
 done
