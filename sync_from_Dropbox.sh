@@ -108,10 +108,10 @@ do
 					#Something changed, check it in
 					git checkout "$entry"
 					git add .
-					comment="`git diff | grep '^+[^+]' | sed -e 's/^\+//' | egrep '#|//|/\*|\*/'
+					comment="`git diff | grep '^+[^+]' | sed -e 's/^\+//' | egrep '#|//|/\*|\*/'`"
 					#TODO: Make comment understand other comment styles like in between /* */ or # only for other languages
 					if [ x"$comment" == "x" ] ; then
-						comment = "Checked in from Dropbox on `date`"
+						comment="Checked in from Dropbox on `date`"
 					fi
 					git commit -a -m "$comment"
 				fi
