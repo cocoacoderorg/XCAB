@@ -107,8 +107,8 @@ do
 				if [ x"$our_status" == "x" ] ; then
 					#Something changed, check it in
 					git checkout "$entry"
-					git add .
 					comment="`git diff | grep '^+[^+]' | sed -e 's/^\+//' | egrep '#|//|/\*|\*/'`"
+					git add .
 					#TODO: Make comment understand other comment styles like in between /* */ or # only for other languages
 					if [ x"$comment" == "x" ] ; then
 						comment="Checked in from Dropbox on `date`"
