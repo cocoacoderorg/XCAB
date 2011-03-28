@@ -24,8 +24,10 @@ cd $XCAB_HOME
 for target in *; do
 	if [ -d "$SCM_WORKING_DIR/$target" ] ; then
 		cd "$SCM_WORKING_DIR/$target"
-		if [ ! -d "$OVER_AIR_INSTALLS_DIR/$target" ] ; then
-			mkdir -p "$OVER_AIR_INSTALLS_DIR/$target"
+
+		if [ x"`ls -1d *xcodeproj`" == x ] ; then
+			#Not an iphone dir
+			continue
 		fi
 		
 		already_built="`cat $OVER_AIR_INSTALLS_DIR/$target/*/sha.txt`"
@@ -47,7 +49,7 @@ for target in *; do
 					fi
 					mkdir -p $OVER_AIR_INSTALLS_DIR/$target/$build_time_human
 					
-					xcrun -sdk iphoneos PackageApplication "./build/Release-iphoneos/${build_target}.app" -o "/tmp/${build_target}.ipa" --sign "iPhone Developer" --embed $provprofile
+					xcrun -sdk iphoneos PackageApplication "./build/Release-iphoneos/${build_target}.app" -o "/tmp/${build_target}.ipa" --sign "iPhone Developer" --embed "$provprofile"
 					if [ $? -ne 0 ] ; then
 						echo "Package Failed" >&2
 						exit 3
