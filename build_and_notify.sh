@@ -41,10 +41,24 @@ for target in *; do
 					git clean -d -f -x
 					build_target=`xcodebuild -list | awk '$1=="Targets:",$1==""' | grep -v "Targets:" | grep -v "^$" | sed -e 's/^  *//' | head -1`
 					xcodebuild build -target $build_target
+					if [ $? -ne 0 ] ; then
+						echo "Build Failed" >&2
+						exit 3
+					fi
 					mkdir -p $OVER_AIR_INSTALLS_DIR/$target/$build_time_human
 					
 					xcrun -sdk iphoneos PackageApplication "./build/Release-iphoneos/${build_target}.app" -o "/tmp/${build_target}.ipa" --sign "iPhone Developer" --embed $provprofile
+					if [ $? -ne 0 ] ; then
+						echo "Package Failed" >&2
+						exit 3
+					fi
+					
 					betabuilder /tmp/${build_target}.ipa $OVER_AIR_INSTALLS_DIR/$target/$build_time_human http://www.pdagent.com/XCAB/${build_target}/$build_time_human
+					if [ $? -ne 0 ] ; then
+						echo "betabuilder Failed" >&2
+						exit 3
+					fi
+					
 					echo "$sha" > "$OVER_AIR_INSTALLS_DIR/$target/$build_time_human/sha.txt"
 				fi
 			fi
