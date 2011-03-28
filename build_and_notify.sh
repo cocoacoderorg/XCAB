@@ -53,3 +53,5 @@ for target in *; do
 	fi
 	cd $XCAB_HOME
 done
+
+rsync -r $HOME/src/OverTheAirInstalls/ web_products_sync@www.pdagent.com:/var/www/htdocs/XCAB
