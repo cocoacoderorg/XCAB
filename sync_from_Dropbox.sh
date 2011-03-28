@@ -35,12 +35,12 @@ do
 	git branch -a | sed -e 's/^..//' -e 's/ ->.*$//' -e 's,^remotes/,,' > "${XCAB_HOME}/$src_dir/branches.txt"
 	
 	cd "${XCAB_HOME}/$src_dir"
-	GIT_DIR="${SCM_WORKING_DIR}/$src_dir/.git"
-	export GIT_DIR
 	
 	for entry in * ; do
-		
 		active_branch=""
+		GIT_DIR="${SCM_WORKING_DIR}/$src_dir/.git"
+		export GIT_DIR
+		
 		if [ -d "$entry" ] ; then
 			#This is a directory - we need to decide if we need to do anything with this
 			cd "${XCAB_HOME}/$src_dir/$entry"
