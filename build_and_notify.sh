@@ -8,6 +8,13 @@ OVER_AIR_INSTALLS_DIR="$HOME/src/OverTheAirInstalls"
 #TODO - dynamically get the profile
 provprofile="/Users/carlb/Library/MobileDevice/Provisioning Profiles/42348AF7-5BCE-440E-AAF8-E00B7398198C.mobileprovision"
 
+#Echo "Please enter your password to allow access to your code signign keychain"
+security unlock-keychain $HOME/Library/Keychains/login.keychain
+if [ $? -ne 0 ] ; then
+	exit 4
+fi
+
+
 if [ ! -d "$OVER_AIR_INSTALLS_DIR" ] ; then
 	mkdir -p "$OVER_AIR_INSTALLS_DIR"
 fi
