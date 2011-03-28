@@ -62,7 +62,7 @@ for target in *; do
 						exit 3
 					fi
 					
-					betabuilder /tmp/${build_target}.ipa $OVER_AIR_INSTALLS_DIR/$target/$build_time_human http://www.pdagent.com/XCAB/${build_target}/$build_time_human
+					betabuilder /tmp/${build_target}.ipa $OVER_AIR_INSTALLS_DIR/$target/$build_time_human "http://www.pdagent.com/XCAB/${build_target}/$build_time_human/"
 					if [ $? -ne 0 ] ; then
 						echo "betabuilder Failed" >&2
 						exit 3
