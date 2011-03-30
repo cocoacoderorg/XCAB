@@ -1,5 +1,16 @@
 #!/bin/sh
 
+#Check for the number of different start times - that way if we're fork()ing, we don't show up as ourselves
+count_of_me_running="`ps auxwwww | grep run_from_cron.sh | grep -v grep | awk '{print $9}' | sort -u | wc -l`"
+
+if [ "$count_of_me_running" -ne "1" ] ; then
+	echo "Bad count of running copies of this script $count_of_me_running - Bailing!"  >&2
+	ps auxwwww | grep run_from_cron.sh | grep -v grep >&2
+	ps auxwwww | grep run_from_cron.sh | grep -v grep | wc -l >&2
+	echo "Bad count of running copies of this script $count_of_me_running - Bailing!" | mail -s "run_XCAB_cron error" pdagent@me.com
+	exit 5
+fi
+
 cd /Users/carlb/src/XCAB
 bin=`dirname "$0"`
 bin=`cd "$bin"; pwd`
