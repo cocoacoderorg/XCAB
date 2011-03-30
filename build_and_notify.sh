@@ -5,13 +5,27 @@ XCAB_HOME="${DROPBOX_HOME}/`cat ${DROPBOX_HOME}/.com.PDAgent.XCAB.settings`"
 SCM_WORKING_DIR="$HOME/src"
 OVER_AIR_INSTALLS_DIR="$HOME/src/OverTheAirInstalls"
 
+bin=`dirname "$0"`
+
+
 #TODO - dynamically get the profile
 provprofile="/Users/carlb/Library/MobileDevice/Provisioning Profiles/42348AF7-5BCE-440E-AAF8-E00B7398198C.mobileprovision"
 
-#Echo "Please enter your password to allow access to your code signign keychain"
-security unlock-keychain $HOME/Library/Keychains/login.keychain
-if [ $? -ne 0 ] ; then
-	exit 4
+if [ -f $bin/codeSigning_pwd.txt ] ; then
+	security list-keychains -s $HOME/Library/Keychains/forCodeSigningOnly.keychain
+	security unlock-keychain -p "`cat $bin/codeSigning_pwd.txt`" $HOME/Library/Keychains/forCodeSigningOnly.keychain
+	if [ $? -ne 0 ] ; then
+		echo "Error unlocking forCodeSigningOnly keychain" >&2
+		exit 4
+	fi
+else
+	echo "Please enter your password to allow access to your code signign keychain"
+	security list-keychains -s $HOME/Library/Keychains/login.keychain
+	security unlock-keychain $HOME/Library/Keychains/login.keychain
+	if [ $? -ne 0 ] ; then
+		echo "Error unlocking login keychain" >&2
+		exit 4
+	fi
 fi
 
 
