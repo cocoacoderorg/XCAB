@@ -16,7 +16,7 @@ if [ $? -ne 0 ] ; then
 	git status >> /tmp/run_XCAB_cron.log 2>&1
 	git pull --rebase origin master >> /tmp/run_XCAB_cron.log 2>&1
 	echo "Error pulling from master" >> /tmp/run_XCAB_cron.log
-	cat /tmp/run_XCAB_cron_start.log /tmp/run_XCAB_cron.log | mail -s "run_XCAB_cron error and log" carlb@ftlv.com 
+	cat /tmp/run_XCAB_cron_start.log /tmp/run_XCAB_cron.log | mail -s "run_XCAB_cron error and log" pdagent@me.com 
 	exit 4
 fi
 git fetch  >/dev/null 2>&1
@@ -27,6 +27,6 @@ $bin/build_and_notify.sh >> /tmp/run_XCAB_cron.log 2>&1
 
 #Only send mail if there's something to report
 if [  -s /tmp/run_XCAB_cron.log ] ; then
-	cat /tmp/run_XCAB_cron_start.log /tmp/run_XCAB_cron.log | mail -s "run_XCAB_cron log" carlb@ftlv.com 
+	cat /tmp/run_XCAB_cron_start.log /tmp/run_XCAB_cron.log | mail -s "run_XCAB_cron log" pdagent@me.com 
 fi
 
