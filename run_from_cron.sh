@@ -5,9 +5,8 @@ count_of_me_running="`ps auxwwww | grep run_from_cron.sh | grep -v grep | awk '{
 
 if [ "$count_of_me_running" -ne "1" ] ; then
 	echo "Bad count of running copies of this script $count_of_me_running - Bailing!"  >&2
-	ps auxwwww | grep run_from_cron.sh | grep -v grep >&2
-	ps auxwwww | grep run_from_cron.sh | grep -v grep | wc -l >&2
-	echo "Bad count of running copies of this script $count_of_me_running - Bailing!" | mail -s "run_XCAB_cron error" pdagent@me.com
+	output_of_me_running="`ps auxwwww | grep run_from_cron.sh | grep -v grep`"
+	echo "Bad count of running copies of this script $count_of_me_running - Bailing! (ps output: '$output_of_me_running')" | mail -s "run_XCAB_cron error" pdagent@me.com
 	exit 5
 fi
 
