@@ -24,7 +24,7 @@ do
 	
 	#Get the latest updates from source control
 	cd "${SCM_WORKING_DIR}/$src_dir"
-	git fetch >/dev/null #only want to see errors
+	git fetch >/dev/null 2>&1
 
 	#If this project doesn't have a corresponding folder in Dropbox, make one
 	if [ ! -d "${XCAB_HOME}/$src_dir" ] ; then
