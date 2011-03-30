@@ -1,5 +1,6 @@
 #!/bin/sh
 
+cd /Users/carlb/src/XCAB
 bin=`dirname "$0"`
 bin=`cd "$bin"; pwd`
 echo "$0 run starting at `date`" > /tmp/run_XCAB_cron_start.log 2>&1
