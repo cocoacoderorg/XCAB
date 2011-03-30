@@ -30,7 +30,7 @@ fi
 
 
 if [ ! -d "$OVER_AIR_INSTALLS_DIR" ] ; then
-	mkdir -p "$OVER_AIR_INSTALLS_DIR"
+	mkdir -p "$OVER_AIR_INSTALLS_DIR" 2>/dev/null
 fi
 
 build_time_human="`date +%Y%m%d%H%M%S`"
@@ -46,12 +46,12 @@ for target in *; do
 	if [ -d "$SCM_WORKING_DIR/$target" ] ; then
 		cd "$SCM_WORKING_DIR/$target"
 
-		if [ x"`ls -1d *xcodeproj`" == x ] ; then
+		if [ x"`ls -1d *xcodeproj 2>/dev/null`" == x ] ; then
 			#Not an iphone dir
 			continue
 		fi
 		
-		already_built="`cat $OVER_AIR_INSTALLS_DIR/$target/*/sha.txt`"
+		already_built="`cat $OVER_AIR_INSTALLS_DIR/$target/*/sha.txt 2>/dev/null`"
 		
 		for candidate in `git branch -l | sed -e 's/^..//'` ; do
 			sha="`git rev-parse $candidate`"
