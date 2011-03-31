@@ -70,7 +70,11 @@ for target in *; do
 					fi
 					mkdir -p $OVER_AIR_INSTALLS_DIR/$target/$build_time_human
 					
-					xcrun -sdk iphoneos PackageApplication "./build/Release-iphoneos/${build_target}.app" -o "/tmp/${build_target}.ipa" --sign "iPhone Developer" --embed "$provprofile"
+					if [ -d "./build/Release-iphoneos/${build_target}.app" ] ; then
+						xcrun -sdk iphoneos PackageApplication "./build/Release-iphoneos/${build_target}.app" -o "/tmp/${build_target}.ipa" --sign "iPhone Developer" --embed "$provprofile"
+					else
+						xcrun -sdk iphoneos PackageApplication "./build/Debug-iphoneos/${build_target}.app" -o "/tmp/${build_target}.ipa" --sign "iPhone Developer" --embed "$provprofile"
+					fi
 					if [ $? -ne 0 ] ; then
 						echo "Package Failed" >&2
 						exit 3
