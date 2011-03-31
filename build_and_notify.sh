@@ -4,7 +4,6 @@ DROPBOX_HOME="$HOME/Dropbox"
 XCAB_HOME="${DROPBOX_HOME}/`cat ${DROPBOX_HOME}/.com.PDAgent.XCAB.settings`"
 SCM_WORKING_DIR="$HOME/src"
 OVER_AIR_INSTALLS_DIR="$HOME/src/OverTheAirInstalls"
-PUBLISHED_URLS=""
 
 bin=`dirname "$0"`
 
@@ -81,8 +80,6 @@ for target in *; do
 					if [ $? -ne 0 ] ; then
 						echo "betabuilder Failed" >&2
 						exit 3
-					else
-						PUBLISHED_URLS="$PUBLISHED_URLS http://www.pdagent.com/XCAB/${target}/$build_time_human/"
 					fi
 					
 					echo "$sha" > "$OVER_AIR_INSTALLS_DIR/$target/$build_time_human/sha.txt"
@@ -95,7 +92,3 @@ for target in *; do
 done
 
 rsync -r $HOME/src/OverTheAirInstalls/ web_products_sync@www.pdagent.com:/var/www/htdocs/XCAB
-
-if [ $? -eq 0 -a x"$PUBLISHED_URLS" != "x" ] ; then
-	echo "Published the following urls: $PUBLISHED_URLS"
-fi
