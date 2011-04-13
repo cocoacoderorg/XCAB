@@ -55,6 +55,18 @@ do
 				mv $entry tmp_checkout_dir
 				cd tmp_checkout_dir
 				
+				#TODO check to see if entry is already a valid reference 
+				#git rev-parse $entry > /dev/null 2>&1
+				#if [ $? -eq 0 ] ; then
+				#   #existing branch/tag
+				#else
+				#TODO if not, grep $entry "${XCAB_HOME}/$src_dir/tags.txt" "${XCAB_HOME}/$src_dir/branches.txt"
+				#TODO   and then find the longest partial match, local if possible, remote if not
+				#fi
+				
+				#
+				
+				
 				#Now we need to figure out the right branch
 				if [ -f "${GIT_DIR}/refs/heads/$entry" ] ; then
 					#Branch exists, this is the one we want
@@ -103,6 +115,7 @@ do
 				
 				git branch -a | sed -e 's/^..//' -e 's/ ->.*$//' -e 's,^remotes/,,' > "${XCAB_HOME}/$src_dir/branches.txt"
 			else
+				#TODO check the (currently not there) log file and don't commit if it's already been built
 				#This directory has files in it, see if any of them have changed
 				our_status="`git status | grep 'nothing to commit'`"
 				if [ x"$our_status" == "x" ] ; then

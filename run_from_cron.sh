@@ -3,6 +3,7 @@
 #give ourselves a little delay 
 sleep 2
 
+#TODO ue a lock file here instead
 #Check for the number of different start times - that way if we're fork()ing, we don't show up as ourselves
 count_of_me_running="`ps auxwwww | grep run_from_cron.sh | grep -v grep | awk '{print $9}' | sort -u | wc -l`"
 

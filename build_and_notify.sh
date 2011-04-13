@@ -53,6 +53,8 @@ for target in *; do
 		
 		already_built="`cat $OVER_AIR_INSTALLS_DIR/$target/*/sha.txt 2>/dev/null`"
 		
+		#TODO check a log file for SHA
+		
 		for candidate in `git branch -l | sed -e 's/^..//'` ; do
 			sha="`git rev-parse $candidate`"
 			commit_time="`git log -1 --pretty=format:"%ct" $sha`"
@@ -62,7 +64,9 @@ for target in *; do
 					git checkout -f $candidate
 					git reset --hard $candidate
 					git clean -d -f -x
+					#TODO need to figure out a way to build other targets
 					build_target=`xcodebuild -list | awk '$1=="Targets:",$1==""' | grep -v "Targets:" | grep -v "^$" | sed -e 's/^  *//' | head -1`
+					#TODO need to make sure we're building for the device
 					xcodebuild build -target $build_target
 					if [ $? -ne 0 ] ; then
 						echo "Build Failed" >&2
@@ -85,7 +89,9 @@ for target in *; do
 						echo "betabuilder Failed" >&2
 						exit 3
 					fi
+					#TODO stick the sha in a log
 					
+					#TODO put this early so failures don't cause loop
 					echo "$sha" > "$OVER_AIR_INSTALLS_DIR/$target/$build_time_human/sha.txt"
 				fi
 			fi
