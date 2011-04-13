@@ -33,6 +33,7 @@ do
 	
 	#Update the list of available branches so the user can find them by looking at Dropbox
 	git branch -a | sed -e 's/^..//' -e 's/ ->.*$//' -e 's,^remotes/,,' > "${XCAB_HOME}/$src_dir/branches.txt"
+	git tag -l  > "${XCAB_HOME}/$src_dir/tags.txt"
 	
 	cd "${XCAB_HOME}/$src_dir"
 	
