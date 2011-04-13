@@ -121,6 +121,9 @@ do
 				if [ x"$our_status" == "x" ] ; then
 					#Something changed, check it in
 					git checkout "$entry"
+					#TODO Skip comments if they aren't preceded by whitespace (so we don't call URLs comments)
+					#TODO Strip out comment characters in comments
+					#TODO Squish whitespace in comments and remove newlines/non-printables
 					comment="`git diff | grep '^+[^+]' | sed -e 's/^\+//' | egrep '#|//|/\*|\*/'`"
 					git add .
 					#TODO: Make comment understand other comment styles like in between /* */ or # only for other languages
