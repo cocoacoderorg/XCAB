@@ -89,8 +89,7 @@ for target in *; do
 						echo "betabuilder Failed" >&2
 						exit 3
 					fi
-					#TODO stick the sha in a log
-					
+										
 					#TODO put this early so failures don't cause loop
 					echo "$sha" > "$OVER_AIR_INSTALLS_DIR/$target/$build_time_human/sha.txt"
 				fi

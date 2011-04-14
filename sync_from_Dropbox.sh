@@ -31,9 +31,10 @@ do
 		mkdir "${XCAB_HOME}/$src_dir"
 	fi
 	
-	#Update the list of available branches so the user can find them by looking at Dropbox
-	git branch -a | sed -e 's/^..//' -e 's/ ->.*$//' -e 's,^remotes/,,' > "${XCAB_HOME}/$src_dir/branches.txt"
-	git tag -l  > "${XCAB_HOME}/$src_dir/tags.txt"
+	#Update the list of available branches so the user can find them by looking at Dropbox - 
+	# sort these so the local branches go first, and then are sorted by branch name
+	git branch -a | sed -e 's/^..//' -e 's/ ->.*$//' -e 's,^remotes/,,' | sort -t / -k 2 -k 1 -k 3 > "${XCAB_HOME}/$src_dir/branches.txt"
+	git tag -l | sort > "${XCAB_HOME}/$src_dir/tags.txt"
 	
 	cd "${XCAB_HOME}/$src_dir"
 	
@@ -53,45 +54,25 @@ do
 				cd "${XCAB_HOME}/$src_dir"
 				rm -rf tmp_checkout_dir
 				mv $entry tmp_checkout_dir
-				cd tmp_checkout_dir
-				
-				#TODO check to see if entry is already a valid reference 
-				#git rev-parse $entry > /dev/null 2>&1
-				#if [ $? -eq 0 ] ; then
-				#   #existing branch/tag
-				#else
-				#TODO if not, grep $entry "${XCAB_HOME}/$src_dir/tags.txt" "${XCAB_HOME}/$src_dir/branches.txt"
-				#TODO   and then find the longest partial match, local if possible, remote if not
-				#fi
-				
-				#
-				
+				cd tmp_checkout_dir				
 				
 				#Now we need to figure out the right branch
-				if [ -f "${GIT_DIR}/refs/heads/$entry" ] ; then
-					#Branch exists, this is the one we want
+				#First check to see if entry is already a valid reference 
+				git rev-parse $entry > /dev/null 2>&1
+				if [ $? -eq 0 ] ; then
+					#Branch already exists, this is the one we want
 					active_branch="$entry"
-				elif [ -f "${GIT_DIR}/refs/remotes/origin/$entry" ] ; then
+				else
+					git rev-parse "origin/$entry" > /dev/null 2>&1
+					if [ $? -eq 0 ] ; then
 						#Branch exists, but is remote
 						active_branch="$entry"
 						echo "Creating Local branch '$entry' from remote branch 'origin/$entry'"
 						git branch "$entry" "origin/$entry"
-				else 
-					#directory doesn't match an existing branch
-					for potential_branch in `grep -v '/' "${XCAB_HOME}/$src_dir/branches.txt"`; do
-						substring_match=`echo $entry | grep "^$potential_branch"`
-						if [ x"$substring_match" != "x" ] ; then
-							active_branch=$potential_branch
-						fi
-					done
-					if [ x"$active_branch" != "x" ] ; then
-						git branch "$entry" "$active_branch"
-						active_branch="$entry"
-					else
-						#Do the same thing with remote branches
-						for potential_branch in `grep '/' "${XCAB_HOME}/$src_dir/branches.txt"`; do
-							localized_potential_branch="`echo $potential_branch | sed -e 's,^[^/]*/,,'`"
-							substring_match=`echo $entry | grep "^$localized_potential_branch"`
+					else 
+						#directory doesn't match an existing branch
+						for potential_branch in `grep -v '/' "${XCAB_HOME}/$src_dir/branches.txt"`; do
+							substring_match=`echo $entry | grep "^$potential_branch"`
 							if [ x"$substring_match" != "x" ] ; then
 								active_branch=$potential_branch
 							fi
@@ -99,6 +80,19 @@ do
 						if [ x"$active_branch" != "x" ] ; then
 							git branch "$entry" "$active_branch"
 							active_branch="$entry"
+						else
+							#Do the same thing with remote branches
+							for potential_branch in `grep '/' "${XCAB_HOME}/$src_dir/branches.txt"`; do
+								localized_potential_branch="`echo $potential_branch | sed -e 's,^[^/]*/,,'`"
+								substring_match=`echo $entry | grep "^$localized_potential_branch"`
+								if [ x"$substring_match" != "x" ] ; then
+									active_branch=$potential_branch
+								fi
+							done
+							if [ x"$active_branch" != "x" ] ; then
+								git branch "$entry" "$active_branch"
+								active_branch="$entry"
+							fi
 						fi
 					fi
 				fi
@@ -112,25 +106,58 @@ do
 				cd ..
 				#TODO - wait for Dropbox to finish syncing
 				mv tmp_checkout_dir "$entry"
+				cd "$entry"
 				
-				git branch -a | sed -e 's/^..//' -e 's/ ->.*$//' -e 's,^remotes/,,' > "${XCAB_HOME}/$src_dir/branches.txt"
+				#Record what we put into Dropbox so if the repo advances, we know the differences aren't the user updating dropbox
+				our_sha="`git rev-parse HEAD`"
+				echo "$our_sha" > "${XCAB_HOME}/$src_dir/last_checkout_sha_${entry}.txt"
+				
+				git branch -a | sed -e 's/^..//' -e 's/ ->.*$//' -e 's,^remotes/,,' | sort -t / -k 2 -k 1 -k 3 > "${XCAB_HOME}/$src_dir/branches.txt"
 			else
-				#TODO check the (currently not there) log file and don't commit if it's already been built
 				#This directory has files in it, see if any of them have changed
 				our_status="`git status | grep 'nothing to commit'`"
 				if [ x"$our_status" == "x" ] ; then
-					#Something changed, check it in
-					git checkout "$entry"
-					#TODO Skip comments if they aren't preceded by whitespace (so we don't call URLs comments)
-					#TODO Strip out comment characters in comments
-					#TODO Squish whitespace in comments and remove newlines/non-printables
-					comment="`git diff | grep '^+[^+]' | sed -e 's/^\+//' | egrep '#|//|/\*|\*/'`"
-					git add .
-					#TODO: Make comment understand other comment styles like in between /* */ or # only for other languages
-					if [ x"$comment" == "x" ] ; then
-						comment="Checked in from Dropbox on `date`"
+					#Something has changed. See if this tree has been checked in from Dropbox already.
+					#	if so, the branch was advanced on the repo, and we need to update Dropbox to match the repo
+					#	if this tree hasn't been checked in, then we check in the state of Dropbox
+					last_sha="`cat \"${XCAB_HOME}/$src_dir/last_checkout_sha_${entry}.txt\"`"
+					our_diff="`git diff $last_sha > /dev/null 2>&1`"
+					if [ -z "$our_diff" ]; then
+						#These files have been checked in, but don't match the current HEAD, so update them to current HEAD
+						cd "${XCAB_HOME}/$src_dir"
+						rm -rf tmp_checkout_dir
+						mv $entry tmp_checkout_dir
+						cd tmp_checkout_dir				
+						
+						git reset --hard HEAD
+						cd ..
+						#TODO - wait for Dropbox to finish syncing
+						mv tmp_checkout_dir "$entry"
+						cd "$entry"
+
+						#Record what we put into Dropbox so if the repo advances, we know the differences aren't the user updating dropbox
+						our_sha="`git rev-parse HEAD`"
+						echo "$our_sha" > "${XCAB_HOME}/$src_dir/last_checkout_sha_${entry}.txt"
+						
+						
+					else
+						#Something changed and this hasn't been checked in before, check it in
+						git checkout "$entry"
+						#TODO Skip comments if they aren't preceded by whitespace (so we don't call URLs comments)
+						#TODO Strip out comment characters in comments
+						#TODO Squish whitespace in comments and remove newlines/non-printables
+						comment="`git diff | grep '^+[^+]' | sed -e 's/^\+//' | egrep '#|//|/\*|\*/'`"
+						git add .
+						#TODO: Make comment understand other comment styles like in between /* */ or # only for other languages
+						if [ x"$comment" == "x" ] ; then
+							comment="Checked in from Dropbox on `date`"
+						fi
+						git commit -a -m "$comment"
+						
+						#Record what we checked in from Dropbox so if the repo advances, we know the differences aren't the user updating dropbox
+						our_sha="`git rev-parse HEAD`"
+						echo "$our_sha" > "${XCAB_HOME}/$src_dir/last_checkout_sha_${entry}.txt"
 					fi
-					git commit -a -m "$comment"
 				fi
 			fi
 		fi
