@@ -8,8 +8,13 @@ OVER_AIR_INSTALLS_DIR="$HOME/src/OverTheAirInstalls"
 bin=`dirname "$0"`
 
 
-#TODO - dynamically get the profile
-provprofile="/Users/carlb/Library/MobileDevice/Provisioning Profiles/42348AF7-5BCE-440E-AAF8-E00B7398198C.mobileprovision"
+#Find the most recent automatically generated provisioning profile
+for f in `ls -1tr "$HOME/Library/MobileDevice/Provisioning Profiles/"`; do 
+	grep -l 'Team Provisioning Profile: *' "$HOME/Library/MobileDevice/Provisioning Profiles/$f" > /dev/null 2>&1
+	if [ $? -eq 0 ]; then
+		provprofile="$HOME/Library/MobileDevice/Provisioning Profiles/$f"
+	fi
+done
 
 if [ -f $bin/codeSigning_pwd.txt ] ; then
 	security list-keychains -s $HOME/Library/Keychains/forCodeSigningOnly.keychain
