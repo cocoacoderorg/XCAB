@@ -1,6 +1,7 @@
 #!/bin/sh
 
 PREFS_DIR="$HOME/Library/Application Support/XCAB"
+#TODO put emails in prefs file
 ERROR_EMAIL="carlb@ftlv.com"
 SUCCESS_EMAIL="pdagent@me.com"
 
