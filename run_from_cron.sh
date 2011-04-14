@@ -5,7 +5,13 @@ ERROR_EMAIL="carlb@ftlv.com"
 SUCCESS_EMAIL="pdagent@me.com"
 
 my_dir="`dirname \"$0\"`"
-cd "$my_dir"; pwd
+cd "$my_dir"
+if [ $? -ne 0 ] ; then
+	echo "Could not cd to $my_dir" >&2
+	echo "Could not cd to $my_dir" | mail -s "$0 error" "$ERROR_EMAIL"
+	exit 5
+fi
+
 my_name="`basename \"$0\"`"
 
 
