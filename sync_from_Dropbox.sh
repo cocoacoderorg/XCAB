@@ -33,9 +33,19 @@ do
 	
 	#Update the list of available branches so the user can find them by looking at Dropbox - 
 	# sort these so the local branches go first, and then are sorted by branch name
-	git branch -a | sed -e 's/^..//' -e 's/ ->.*$//' -e 's,^remotes/,,' | grep -v '/HEAD$' | sort -t / -k 2 -k 1 -k 3 > "${XCAB_HOME}/$src_dir/branches.txt"
-	git tag -l | sort > "${XCAB_HOME}/$src_dir/tags.txt"
+	git branch -a | sed -e 's/^..//' -e 's/ ->.*$//' -e 's,^remotes/,,' | grep -v '/HEAD$' | sort -t / -k 2 -k 1 -k 3 > "${SCM_WORKING_DIR}/${src_dir}_branches.txt"
+	git tag -l | sort > "${SCM_WORKING_DIR}/${src_dir}_tags.txt"
 	
+	#Only stick it in Dropbox if it's changed.  No reason to make Dropbox upload an identical file again
+	diff "${SCM_WORKING_DIR}/${src_dir}_branches.txt" "${XCAB_HOME}/$src_dir/branches.txt"
+	if [ $? -ne 0 ] ; then
+		cp "${SCM_WORKING_DIR}/${src_dir}_branches.txt" "${XCAB_HOME}/$src_dir/branches.txt"
+	fi
+	diff "${SCM_WORKING_DIR}/${src_dir}_tags.txt" "${XCAB_HOME}/$src_dir/tags.txt"
+	if [ $? -ne 0 ] ; then
+		cp "${SCM_WORKING_DIR}/${src_dir}_tags.txt" "${XCAB_HOME}/$src_dir/tags.txt"
+	fi
+		
 	cd "${XCAB_HOME}/$src_dir"
 	
 	for entry in * ; do
