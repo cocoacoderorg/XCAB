@@ -33,7 +33,7 @@ do
 	
 	#Update the list of available branches so the user can find them by looking at Dropbox - 
 	# sort these so the local branches go first, and then are sorted by branch name
-	git branch -a | sed -e 's/^..//' -e 's/ ->.*$//' -e 's,^remotes/,,' | sort -t / -k 2 -k 1 -k 3 > "${XCAB_HOME}/$src_dir/branches.txt"
+	git branch -a | sed -e 's/^..//' -e 's/ ->.*$//' -e 's,^remotes/,,' | grep -v '/HEAD$' | sort -t / -k 2 -k 1 -k 3 > "${XCAB_HOME}/$src_dir/branches.txt"
 	git tag -l | sort > "${XCAB_HOME}/$src_dir/tags.txt"
 	
 	cd "${XCAB_HOME}/$src_dir"
