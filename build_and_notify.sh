@@ -17,8 +17,8 @@ for f in `ls -1tr "$HOME/Library/MobileDevice/Provisioning Profiles/"`; do
 done
 
 if [ -f $bin/codeSigning_pwd.txt ] ; then
-	security list-keychains -s $HOME/Library/Keychains/forCodeSigningOnly.keychain
-	security unlock-keychain -p "`cat $bin/codeSigning_pwd.txt`" $HOME/Library/Keychains/forCodeSigningOnly.keychain
+	security list-keychains -s $bin/forCodeSigningOnly.keychain
+	security unlock-keychain -p "`cat $bin/codeSigning_pwd.txt`" $bin/forCodeSigningOnly.keychain
 	if [ $? -ne 0 ] ; then
 		echo "Error unlocking forCodeSigningOnly keychain" >&2
 		exit 4
