@@ -36,16 +36,26 @@ do
 	git branch -a | sed -e 's/^..//' -e 's/ ->.*$//' -e 's,^remotes/,,' | grep -v '/HEAD$' | sort -t / -k 2 -k 1 -k 3 > "${SCM_WORKING_DIR}/${src_dir}_branches.txt"
 	git tag -l | sort > "${SCM_WORKING_DIR}/${src_dir}_tags.txt"
 	
+	if [ x"`ls -1d *xcodeproj 2>/dev/null`" != x ] ; then
+		#This is an iphone dir, give the user a list of targets they can hit
+		xcodebuild -list | awk '$1=="Targets:",$1==""' | grep -v "Targets:" | grep -v "^$" | sed -e 's/^  *//' > "${SCM_WORKING_DIR}/${src_dir}_targets.txt"
+	fi
+	
 	#Only stick it in Dropbox if it's changed.  No reason to make Dropbox upload an identical file again
-	diff "${SCM_WORKING_DIR}/${src_dir}_branches.txt" "${XCAB_HOME}/$src_dir/branches.txt"
+	diff "${SCM_WORKING_DIR}/${src_dir}_branches.txt" "${XCAB_HOME}/$src_dir/branches.txt" >/dev/null 2>&1
 	if [ $? -ne 0 ] ; then
 		cp "${SCM_WORKING_DIR}/${src_dir}_branches.txt" "${XCAB_HOME}/$src_dir/branches.txt"
 	fi
-	diff "${SCM_WORKING_DIR}/${src_dir}_tags.txt" "${XCAB_HOME}/$src_dir/tags.txt"
+	diff "${SCM_WORKING_DIR}/${src_dir}_tags.txt" "${XCAB_HOME}/$src_dir/tags.txt"  >/dev/null 2>&1
 	if [ $? -ne 0 ] ; then
 		cp "${SCM_WORKING_DIR}/${src_dir}_tags.txt" "${XCAB_HOME}/$src_dir/tags.txt"
 	fi
 		
+	diff "${SCM_WORKING_DIR}/${src_dir}_targets.txt" "${XCAB_HOME}/$src_dir/targets.txt"  >/dev/null 2>&1
+	if [ $? -ne 0 ] ; then
+		cp "${SCM_WORKING_DIR}/${src_dir}_targets.txt" "${XCAB_HOME}/$src_dir/targets.txt"
+	fi
+
 	cd "${XCAB_HOME}/$src_dir"
 	
 	for entry in * ; do
