@@ -140,7 +140,7 @@ do
 					#	if so, the branch was advanced on the repo, and we need to update Dropbox to match the repo
 					#	if this tree hasn't been checked in, then we check in the state of Dropbox
 					last_sha="`cat \"${XCAB_HOME}/$src_dir/last_checkout_sha_${entry}.txt\"`"
-					our_diff="`git diff $last_sha > /dev/null 2>&1`"
+					our_diff="`git diff $last_sha 2>&1`"
 					if [ -z "$our_diff" ]; then
 						#These files have been checked in, but don't match the current HEAD, so update them to current HEAD
 						cd "${XCAB_HOME}/$src_dir"
@@ -162,10 +162,10 @@ do
 					else
 						#Something changed and this hasn't been checked in before, check it in
 						git checkout "$entry"
-						#TODO Skip comments if they aren't preceded by whitespace (so we don't call URLs comments)
-						#TODO Strip out comment characters in comments
-						#TODO Squish whitespace in comments and remove newlines/non-printables
-						comment="`git diff | grep '^+[^+]' | sed -e 's/^\+//' | egrep '#|//|/\*|\*/'`"
+						#Skip comments if they aren't preceded by whitespace (so we don't consider URLs comments)
+						#Strip out comment characters in comments
+						#Squish whitespace in comments and remove newlines/non-printables
+						comment="`git diff | grep '^\+[^+]' | sed -e 's/^\+//' | egrep '^[ 	]*(#|//|/\*|\*/)' | sed -e 's/^[ 	]*#//' | sed -e 's,^[ 	]*/[\*/],,'`"
 						git add .
 						#TODO: Make comment understand other comment styles like in between /* */ or # only for other languages
 						if [ x"$comment" == "x" ] ; then
