@@ -176,6 +176,7 @@ do
 						#Record what we checked in from Dropbox so if the repo advances, we know the differences aren't the user updating dropbox
 						our_sha="`git rev-parse HEAD`"
 						echo "$our_sha" > "${XCAB_HOME}/$src_dir/last_checkout_sha_${entry}.txt"
+						git push origin ${entry}
 					fi
 				fi
 			fi
