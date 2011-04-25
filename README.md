@@ -3,3 +3,5 @@
 I'm currently using BetaBuilder to generate the ipa file, and expect to be using the boxcar API to to notifications soon.
 
 There's a bunch of hardcoded junk in this thing that I need to fix, the cleanup is in process, but it isn't really ready for anyone else to use, yet. 
+
+I think what I've decided to do is to make a Mac MenuBar (NSStatusItem) based App and use NSTimer instead of running it from cron, and then work on moving a piece of it at a time from bash to Cocoa
