@@ -5,7 +5,7 @@ XCAB_HOME="${DROPBOX_HOME}/`cat ${DROPBOX_HOME}/.com.PDAgent.XCAB.settings`"
 SCM_WORKING_DIR="$HOME/src"
 OVER_AIR_INSTALLS_DIR="$HOME/src/OverTheAirInstalls/"
 BOXCAR_EMAIL="`cat boxcar_email.txt`"
-BOXCAR_PASSWORD="`boxcar_pwd.txt`"
+BOXCAR_PASSWORD="`cat boxcar_pwd.txt`"
 RSYNC_USER="web_products_sync"
 XCAB_WEB_ROOT="www.pdagent.com:/var/www/htdocs/XCAB"
 
