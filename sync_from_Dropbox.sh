@@ -4,6 +4,7 @@ DROPBOX_HOME="$HOME/Dropbox"
 XCAB_HOME="${DROPBOX_HOME}/`cat ${DROPBOX_HOME}/.com.PDAgent.XCAB.settings`"
 XCAB_CONF="${XCAB_HOME}/XCAB.conf"
 SCM_WORKING_DIR="$HOME/src"
+DB_PID="`cat $HOME/.dropbox/dropbox.pid`"
 
 if [ ! -d "${XCAB_HOME}" ] ; then
 	mkdir "${XCAB_HOME}"
@@ -123,7 +124,14 @@ do
 				git checkout -f $active_branch
 				git reset --hard $active_branch
 				cd ..
-				#TODO - wait for Dropbox to finish syncing
+				#wait for Dropbox to finish syncing
+				DB_OPEN_FILES="`lsof -p $DB_PID | grep ' REG ' | grep \" $HOME/Dropbox/\" | wc -l`"
+				
+				while [ "$DB_OPEN_FILES" -ne 0 ] ; do
+					sleep 3
+					DB_OPEN_FILES="`lsof -p $DB_PID | grep ' REG ' | grep \" $HOME/Dropbox/\" | wc -l`"
+				done
+				
 				mv tmp_checkout_dir "$entry"
 				cd "$entry"
 				
@@ -150,7 +158,14 @@ do
 						
 						git reset --hard HEAD
 						cd ..
-						#TODO - wait for Dropbox to finish syncing
+						#wait for Dropbox to finish syncing
+						DB_OPEN_FILES="`lsof -p $DB_PID | grep ' REG ' | grep \" $HOME/Dropbox/\" | wc -l`"
+
+						while [ "$DB_OPEN_FILES" -ne 0 ] ; do
+							sleep 3
+							DB_OPEN_FILES="`lsof -p $DB_PID | grep ' REG ' | grep \" $HOME/Dropbox/\" | wc -l`"
+						done
+
 						mv tmp_checkout_dir "$entry"
 						cd "$entry"
 
