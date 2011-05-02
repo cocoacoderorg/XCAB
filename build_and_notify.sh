@@ -67,12 +67,13 @@ for target in *; do
 					git checkout -f $candidate
 					git reset --hard $candidate
 					git clean -d -f -x
-					#TODO need to figure out a way to inicate that the user wants to build other targets
+					#TODO need to figure out a way to indicate that the user wants to build other targets
 					build_target=`xcodebuild -list | awk '$1=="Targets:",$1==""' | grep -v "Targets:" | grep -v "^$" | sed -e 's/^  *//' | head -1`
 					#TODO need to make sure we're building for the device
 					xcodebuild build -target $build_target
 					if [ $? -ne 0 ] ; then
 						echo "Build Failed" >&2
+						echo "$sha" > "$OVER_AIR_INSTALLS_DIR/$target/$build_time_human/sha.txt" #Don't try to build this again - it would fail over and over
 						exit 3
 					fi
 					mkdir -p $OVER_AIR_INSTALLS_DIR/$target/$build_time_human
@@ -84,12 +85,14 @@ for target in *; do
 					fi
 					if [ $? -ne 0 ] ; then
 						echo "Package Failed" >&2
+						echo "$sha" > "$OVER_AIR_INSTALLS_DIR/$target/$build_time_human/sha.txt" #Don't try to build this again - it would fail over and over
 						exit 3
 					fi
 					
-					betabuilder /tmp/${build_target}.ipa $OVER_AIR_INSTALLS_DIR/$target/$build_time_human "http://www.pdagent.com/XCAB/${target}/$build_time_human"
+					betabuilder /tmp/${build_target}.ipa $OVER_AIR_INSTALLS_DIR/$target/$build_time_human "http://${XCAB_WEB_ROOT}/${target}/$build_time_human"
 					if [ $? -ne 0 ] ; then
 						echo "betabuilder Failed" >&2
+						echo "$sha" > "$OVER_AIR_INSTALLS_DIR/$target/$build_time_human/sha.txt" #Don't try to build this again - it would fail over and over
 						exit 3
 					fi
 										
