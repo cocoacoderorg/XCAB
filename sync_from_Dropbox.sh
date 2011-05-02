@@ -11,11 +11,11 @@ if [ ! -d "${XCAB_HOME}" ] ; then
 fi
 
 #wait for Dropbox to finish syncing anything that might be in progress
-DB_OPEN_FILES="`lsof -p $DB_PID | grep ' REG ' | grep \" $HOME/Dropbox/\" | wc -l`"
+DB_OPEN_FILES="`/usr/sbin/lsof -p $DB_PID | grep ' REG ' | grep \" $HOME/Dropbox/\" | wc -l`"
 
 while [ "$DB_OPEN_FILES" -ne 0 ] ; do
 	sleep 3
-	DB_OPEN_FILES="`lsof -p $DB_PID | grep ' REG ' | grep \" $HOME/Dropbox/\" | wc -l`"
+	DB_OPEN_FILES="`/usr/sbin/lsof -p $DB_PID | grep ' REG ' | grep \" $HOME/Dropbox/\" | wc -l`"
 done
 				
 exec<$XCAB_CONF
@@ -133,11 +133,11 @@ do
 				git reset --hard $active_branch
 				cd ..
 				#wait for Dropbox to finish syncing
-				DB_OPEN_FILES="`lsof -p $DB_PID | grep ' REG ' | grep \" $HOME/Dropbox/\" | wc -l`"
+				DB_OPEN_FILES="`/usr/sbin/lsof -p $DB_PID | grep ' REG ' | grep \" $HOME/Dropbox/\" | wc -l`"
 				
 				while [ "$DB_OPEN_FILES" -ne 0 ] ; do
 					sleep 3
-					DB_OPEN_FILES="`lsof -p $DB_PID | grep ' REG ' | grep \" $HOME/Dropbox/\" | wc -l`"
+					DB_OPEN_FILES="`/usr/sbin/lsof -p $DB_PID | grep ' REG ' | grep \" $HOME/Dropbox/\" | wc -l`"
 				done
 				
 				mv tmp_checkout_dir "$entry"
@@ -167,11 +167,11 @@ do
 						git reset --hard HEAD
 						cd ..
 						#wait for Dropbox to finish syncing
-						DB_OPEN_FILES="`lsof -p $DB_PID | grep ' REG ' | grep \" $HOME/Dropbox/\" | wc -l`"
+						DB_OPEN_FILES="`/usr/sbin/lsof -p $DB_PID | grep ' REG ' | grep \" $HOME/Dropbox/\" | wc -l`"
 
 						while [ "$DB_OPEN_FILES" -ne 0 ] ; do
 							sleep 3
-							DB_OPEN_FILES="`lsof -p $DB_PID | grep ' REG ' | grep \" $HOME/Dropbox/\" | wc -l`"
+							DB_OPEN_FILES="`/usr/sbin/lsof -p $DB_PID | grep ' REG ' | grep \" $HOME/Dropbox/\" | wc -l`"
 						done
 
 						mv tmp_checkout_dir "$entry"
