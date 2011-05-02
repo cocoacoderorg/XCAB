@@ -10,6 +10,14 @@ if [ ! -d "${XCAB_HOME}" ] ; then
 	mkdir "${XCAB_HOME}"
 fi
 
+#wait for Dropbox to finish syncing anything that might be in progress
+DB_OPEN_FILES="`lsof -p $DB_PID | grep ' REG ' | grep \" $HOME/Dropbox/\" | wc -l`"
+
+while [ "$DB_OPEN_FILES" -ne 0 ] ; do
+	sleep 3
+	DB_OPEN_FILES="`lsof -p $DB_PID | grep ' REG ' | grep \" $HOME/Dropbox/\" | wc -l`"
+done
+				
 exec<$XCAB_CONF
 while read line 
 do
