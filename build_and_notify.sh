@@ -3,7 +3,12 @@
 DROPBOX_HOME="$HOME/Dropbox"
 XCAB_HOME="${DROPBOX_HOME}/`cat ${DROPBOX_HOME}/.com.PDAgent.XCAB.settings`"
 SCM_WORKING_DIR="$HOME/src"
-OVER_AIR_INSTALLS_DIR="$HOME/src/OverTheAirInstalls"
+OVER_AIR_INSTALLS_DIR="$HOME/src/OverTheAirInstalls/"
+BOXCAR_EMAIL="`cat boxcar_email.txt`"
+BOXCAR_PASSWORD="`boxcar_pwd.txt`"
+RSYNC_USER="web_products_sync"
+XCAB_WEB_ROOT="www.pdagent.com:/var/www/htdocs/XCAB"
+
 
 bin=`dirname "$0"`
 
@@ -94,6 +99,10 @@ for target in *; do
 						echo "betabuilder Failed" >&2
 						echo "$sha" > "$OVER_AIR_INSTALLS_DIR/$target/$build_time_human/sha.txt" #Don't try to build this again - it would fail over and over
 						exit 3
+					else
+						#We're making the implicit assumption here that there aren't going to be several new 
+						rsync -r ${OVER_AIR_INSTALLS_DIR} ${RSYNC_USER}@${XCAB_WEB_ROOT}
+						curl -d "notification[source_url]=http://${XCAB_WEB_ROOT}/$target/$build_time_human/" -d "notification[message]=New+${target}+Build+available" --user "${BOXCAR_EMAIL}:${BOXCAR_PASSWORD}" https://boxcar.io/notifications
 					fi
 										
 					#TODO put this early so failures don't cause loop
@@ -106,4 +115,5 @@ for target in *; do
 	cd $XCAB_HOME
 done
 
-rsync -r $HOME/src/OverTheAirInstalls/ web_products_sync@www.pdagent.com:/var/www/htdocs/XCAB
+#One more Sync just to be sure
+rsync -r ${OVER_AIR_INSTALLS_DIR} ${RSYNC_USER}@${XCAB_WEB_ROOT}
