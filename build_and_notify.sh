@@ -47,7 +47,7 @@ fi
 build_time_human="`date +%Y%m%d%H%M%S`"
 
 now="`date '+%s'`"
-days=1 # don't build things more than 7 days old
+days=1 # don't build things more than 1 day old
 cutoff_window="`expr $days \* 24 \* 60 \* 60`" 
 cutoff_time="`expr $now - $cutoff_window`"
 
