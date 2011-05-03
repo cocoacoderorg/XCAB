@@ -199,7 +199,14 @@ do
 						#Record what we checked in from Dropbox so if the repo advances, we know the differences aren't the user updating dropbox
 						our_sha="`git rev-parse HEAD`"
 						echo "$our_sha" > "${XCAB_HOME}/$src_dir/last_checkout_sha_${entry}.txt"
-						git push origin ${entry}
+						#Check to see if we have a writeable origin
+						#  Grab the push origin url and check to see if it starts with 
+						#    ssh:// or a username-looking-string folowed by an @ sign
+						origin_path="`git remote -v | grep origin | grep push | awk '$1=="origin" && $3=="(push)" {print $2}' | egrep '^(ssh://|[A-Za-z0-9][A-Za-z0-9]*@)'`"
+						
+						if [ -s "$origin_path" ] ; then
+							git push origin ${entry}
+						fi
 					fi
 				fi
 			fi
