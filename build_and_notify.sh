@@ -57,6 +57,12 @@ for target in *; do
 	if [ -d "$SCM_WORKING_DIR/$target" ] ; then
 		cd "$SCM_WORKING_DIR/$target"
 
+		#Bring the local repo up to date
+		# But if we can't talk to the server, ignore the error
+		#TODO make sure that, if there is an error, it's only
+		#  a connection error before we ignore it
+		git fetch > /dev/null 2>&1
+
 		if [ x"`ls -1d *xcodeproj 2>/dev/null`" == x ] ; then
 			#Not an iphone dir
 			continue
