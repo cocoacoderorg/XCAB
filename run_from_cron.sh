@@ -76,6 +76,12 @@ rm "$RUN_LOG" && touch "$RUN_LOG"
 
 #Only want to see errors
 git fetch >/dev/null 2>&1
+if [ $? -ne 0 ] ; then
+	#Network error - let's try again later
+	#No point telling the user, there's nothing they can do
+	#TODO: Should probably check to make sure it's reall network
+	exit 3
+fi
 git pull --rebase origin master >/dev/null 2>&1
 if [ $? -ne 0 ] ; then
 	echo "Error pulling from master" >&2
