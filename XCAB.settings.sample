@@ -1,0 +1,39 @@
+#This is a sample settings file for XCAB
+# This is parsed by /bin/sh, so whitespace is relevant, please don't put spaces before or after the equals signs
+# and values with spaces in them should be enclosed in double-quotes (see the PREFS_DIR value below)
+
+#Email address where you want errors emailed
+ERROR_EMAIL="carlb@ftlv.com"
+
+#Email address where you want build output emailed if everything succeeds
+SUCCESS_EMAIL="pdagent@me.com"
+
+#Email and password for your Boxcar account (needed to send you push notifications)
+BOXCAR_EMAIL="`cat boxcar_email.txt`"
+BOXCAR_PASSWORD="`cat boxcar_pwd.txt`"
+
+#This is the URL to the root of your Dropbox public folder.  Go to https://www.dropbox.com/help/16 and follow the directions there to get
+# the path to something in your public folder, and chop it off after the Userid number
+DROPBOX_PUBLIC_LINK_PREFIX="http://dl.dropbox.com/u/6778010/"
+
+#Folder on your Mac where you want XCAB to check out and build code
+SCM_WORKING_DIR="$HOME/src/XCAB_working_dir"
+
+#If you want to want to run XCAB from cron, you'll need to specify a keychain and the associated password
+#  so XCAB can unlock it.  You can ignore this if you're running it from a loop in a terminal in a logged in session
+CODESIGNING_KEYCHAIN="${SCM_WORKING_DIR}/forCodeSigningOnly.keychain"
+CODESIGNING_KEYCHAIN_PASSWORD="`cat $bin/codeSigning_pwd.txt`"
+
+#The Folder inside your Dropbox in which you want XCAB to look for your changes
+XCAB_DROPBOX_PATH="Code/XCAB"
+
+###############################################################################
+#You shouldn't need to change anything below this line
+###############################################################################
+DROPBOX_HOME="$HOME/Dropbox"
+XCAB_HOME="${DROPBOX_HOME}/${XCAB_DROPBOX_PATH}"
+XCAB_CONF="${XCAB_HOME}/XCAB.conf"
+OVER_AIR_INSTALLS_DIR="$DROPBOX_HOME/Public/XCAB"
+XCAB_WEB_ROOT="${DROPBOX_PUBLIC_LINK_PREFIX}/XCAB"
+PREFS_DIR="$HOME/Library/Application Support/XCAB"
+

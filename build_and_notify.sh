@@ -1,18 +1,14 @@
 #!/bin/sh
 
-DROPBOX_HOME="$HOME/Dropbox"
-XCAB_HOME="${DROPBOX_HOME}/`cat ${DROPBOX_HOME}/.com.PDAgent.XCAB.settings`"
-SCM_WORKING_DIR="$HOME/src"
-OVER_AIR_INSTALLS_DIR="$HOME/src/OverTheAirInstalls/"
-BOXCAR_EMAIL="`cat boxcar_email.txt`"
-BOXCAR_PASSWORD="`cat boxcar_pwd.txt`"
-RSYNC_USER="web_products_sync"
-XCAB_WEB_ROOT="http://www.pdagent.com:/XCAB"
-XCAB_WEBSERVER_FILEPATH="www.pdagent.com:/var/www/htdocs/XCAB"
+my_dir="`dirname \"$0\"`"
+cd "$my_dir"
+if [ $? -ne 0 ] ; then
+	echo "Could not cd to $my_dir" >&2
+	exit 5
+fi
 
-
-bin=`dirname "$0"`
-
+. $my_dir/XCAB.settings
+. $my_dir/functions.sh
 
 #Find the most recent automatically generated provisioning profile
 for f in `ls -1tr "$HOME/Library/MobileDevice/Provisioning Profiles/"`; do 
@@ -22,11 +18,11 @@ for f in `ls -1tr "$HOME/Library/MobileDevice/Provisioning Profiles/"`; do
 	fi
 done
 
-if [ -f $bin/codeSigning_pwd.txt ] ; then
-	security list-keychains -s $bin/forCodeSigningOnly.keychain
-	security unlock-keychain -p "`cat $bin/codeSigning_pwd.txt`" $bin/forCodeSigningOnly.keychain
+if [ ! -z "$CODESIGNING_KEYCHAIN" -a ! -z "$CODESIGNING_KEYCHAIN_PASSWORD" -f "$CODESIGNING_KEYCHAIN" ] ; then
+	security list-keychains -s $CODESIGNING_KEYCHAIN
+	security unlock-keychain -p $CODESIGNING_KEYCHAIN_PASSWORD $CODESIGNING_KEYCHAIN
 	if [ $? -ne 0 ] ; then
-		echo "Error unlocking forCodeSigningOnly keychain" >&2
+		echo "Error unlocking $CODESIGNING_KEYCHAIN keychain" >&2
 		exit 4
 	fi
 else
@@ -96,6 +92,7 @@ for target in *; do
 						xcrun -sdk iphoneos PackageApplication "./build/Debug-iphoneos/${build_target}.app" -o "/tmp/${build_target}.ipa" --sign "iPhone Developer" --embed "$provprofile"
 					fi
 					if [ $? -ne 0 ] ; then
+						rm -rf /tmp/${build_target}.ipa
 						echo "Package Failed" >&2
 						echo "$sha" > "$OVER_AIR_INSTALLS_DIR/$target/$build_time_human/sha.txt" #Don't try to build this again - it would fail over and over
 						exit 3
@@ -103,13 +100,21 @@ for target in *; do
 					
 					betabuilder /tmp/${build_target}.ipa $OVER_AIR_INSTALLS_DIR/$target/$build_time_human "${XCAB_WEB_ROOT}/${target}/$build_time_human"
 					if [ $? -ne 0 ] ; then
+						rm -rf /tmp/${build_target}.ipa
 						echo "betabuilder Failed" >&2
 						echo "$sha" > "$OVER_AIR_INSTALLS_DIR/$target/$build_time_human/sha.txt" #Don't try to build this again - it would fail over and over
 						exit 3
 					else
-						#We're making the implicit assumption here that there aren't going to be several new 
-						rsync -r ${OVER_AIR_INSTALLS_DIR} ${RSYNC_USER}@${XCAB_WEBSERVER_FILEPATH}
-						curl -d "notification[source_url]=${XCAB_WEB_ROOT}/$target/$build_time_human/" -d "notification[message]=New+${target}+Build+available" --user "${BOXCAR_EMAIL}:${BOXCAR_PASSWORD}" https://boxcar.io/notifications
+						rm -rf /tmp/${build_target}.ipa
+						
+						if [ ! -z "$RSYNC_USER" ] ; then
+							#If we're not using Dropbox's public web server, run rsync now
+							rsync -r ${OVER_AIR_INSTALLS_DIR} ${RSYNC_USER}@${XCAB_WEBSERVER_HOSTNAME}:${XCAB_WEBSERVER_XCAB_DIRECTORY_PATH}
+						fi
+					
+						#We're making the implicit assumption here that there aren't going to be a bunch of new changes per run
+						#Notify with Boxcar
+						curl -d "notification[source_url]=${XCAB_WEB_ROOT}/$target/$build_time_human/index.html" -d "notification[message]=New+${target}+Build+available" --user "${BOXCAR_EMAIL}:${BOXCAR_PASSWORD}" https://boxcar.io/notifications
 					fi
 										
 					#TODO put this early so failures don't cause loop
@@ -122,5 +127,7 @@ for target in *; do
 	cd $XCAB_HOME
 done
 
-#One more Sync just to be sure
-rsync -r ${OVER_AIR_INSTALLS_DIR} ${RSYNC_USER}@${XCAB_WEBSERVER_FILEPATH}
+if [ ! -z "$RSYNC_USER" ] ; then
+	#One more Sync just to be sure If we're not using Dropbox's public web server, run rsync now
+	rsync -r ${OVER_AIR_INSTALLS_DIR} ${RSYNC_USER}@${XCAB_WEBSERVER_HOSTNAME}:${XCAB_WEBSERVER_XCAB_DIRECTORY_PATH}
+fi

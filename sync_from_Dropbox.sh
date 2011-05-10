@@ -1,22 +1,20 @@
 #!/bin/sh
 
-DROPBOX_HOME="$HOME/Dropbox"
-XCAB_HOME="${DROPBOX_HOME}/`cat ${DROPBOX_HOME}/.com.PDAgent.XCAB.settings`"
-XCAB_CONF="${XCAB_HOME}/XCAB.conf"
-SCM_WORKING_DIR="$HOME/src"
-DB_PID="`cat $HOME/.dropbox/dropbox.pid`"
+my_dir="`dirname \"$0\"`"
+cd "$my_dir"
+if [ $? -ne 0 ] ; then
+	echo "Could not cd to $my_dir" >&2
+	exit 5
+fi
+
+. $my_dir/XCAB.settings
+. $my_dir/functions.sh
 
 if [ ! -d "${XCAB_HOME}" ] ; then
 	mkdir "${XCAB_HOME}"
 fi
 
-#wait for Dropbox to finish syncing anything that might be in progress
-DB_OPEN_FILES="`/usr/sbin/lsof -p $DB_PID | grep ' REG ' | grep \" ${DROPBOX_HOME}/\" | wc -l`"
-
-while [ "$DB_OPEN_FILES" -ne 0 ] ; do
-	sleep 3
-	DB_OPEN_FILES="`/usr/sbin/lsof -p $DB_PID | grep ' REG ' | grep \" ${DROPBOX_HOME}/\" | wc -l`"
-done
+wait_for_idle_dropbox()
 				
 exec<$XCAB_CONF
 while read line 
@@ -132,13 +130,8 @@ do
 				git checkout -f $active_branch
 				git reset --hard $active_branch
 				cd ..
-				#wait for Dropbox to finish syncing
-				DB_OPEN_FILES="`/usr/sbin/lsof -p $DB_PID | grep ' REG ' | grep \" ${DROPBOX_HOME}/\" | wc -l`"
 				
-				while [ "$DB_OPEN_FILES" -ne 0 ] ; do
-					sleep 3
-					DB_OPEN_FILES="`/usr/sbin/lsof -p $DB_PID | grep ' REG ' | grep \" ${DROPBOX_HOME}/\" | wc -l`"
-				done
+				wait_for_idle_dropbox()
 				
 				mv tmp_checkout_dir "$entry"
 				cd "$entry"
@@ -166,13 +159,8 @@ do
 						
 						git reset --hard HEAD
 						cd ..
-						#wait for Dropbox to finish syncing
-						DB_OPEN_FILES="`/usr/sbin/lsof -p $DB_PID | grep ' REG ' | grep \" ${DROPBOX_HOME}/\" | wc -l`"
-
-						while [ "$DB_OPEN_FILES" -ne 0 ] ; do
-							sleep 3
-							DB_OPEN_FILES="`/usr/sbin/lsof -p $DB_PID | grep ' REG ' | grep \" ${DROPBOX_HOME}/\" | wc -l`"
-						done
+						
+						wait_for_idle_dropbox()
 
 						mv tmp_checkout_dir "$entry"
 						cd "$entry"

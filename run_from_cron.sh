@@ -1,20 +1,17 @@
 #!/bin/sh
 
-PREFS_DIR="$HOME/Library/Application Support/XCAB"
-#TODO put emails in prefs file
-ERROR_EMAIL="carlb@ftlv.com"
-SUCCESS_EMAIL="pdagent@me.com"
 
 my_dir="`dirname \"$0\"`"
 cd "$my_dir"
 if [ $? -ne 0 ] ; then
 	echo "Could not cd to $my_dir" >&2
-	echo "Could not cd to $my_dir" | mail -s "$0 error" "$ERROR_EMAIL"
 	exit 5
 fi
 
-my_name="`basename \"$0\"`"
+. $my_dir/XCAB.settings
+. $my_dir/functions.sh
 
+my_name="`basename \"$0\"`"
 
 
 if [ ! -d "$PREFS_DIR" ] ; then
@@ -76,12 +73,6 @@ rm "$RUN_LOG" && touch "$RUN_LOG"
 
 #Only want to see errors
 git fetch >/dev/null 2>&1
-if [ $? -ne 0 ] ; then
-	#Network error - let's try again later
-	#No point telling the user, there's nothing they can do
-	#TODO: Should probably check to make sure it's reall network
-	exit 3
-fi
 git pull --rebase origin master >/dev/null 2>&1
 if [ $? -ne 0 ] ; then
 	echo "Error pulling from master" >&2
