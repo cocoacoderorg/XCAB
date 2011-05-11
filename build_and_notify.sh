@@ -43,7 +43,7 @@ fi
 build_time_human="`date +%Y%m%d%H%M%S`"
 
 now="`date '+%s'`"
-days=1 # don't build things more than 1 day old
+days=2 # don't build things more than 2 days old
 cutoff_window="`expr $days \* 24 \* 60 \* 60`" 
 cutoff_time="`expr $now - $cutoff_window`"
 
@@ -105,6 +105,13 @@ for target in *; do
 						echo "$sha" > "$OVER_AIR_INSTALLS_DIR/$target/$build_time_human/sha.txt" #Don't try to build this again - it would fail over and over
 						exit 3
 					else
+						#Save off the symbols, too
+						if [ -d "./build/Release-iphoneos/${build_target}.app.dSYM" ] ; then
+							tar czf "$OVER_AIR_INSTALLS_DIR/$target/$build_time_human/${build_target}.app.dSYM.tar.gz" "./build/Release-iphoneos/${build_target}.app.dSYM"
+						else
+							tar czf "$OVER_AIR_INSTALLS_DIR/$target/$build_time_human/${build_target}.app.dSYM.tar.gz" "./build/Debug-iphoneos/${build_target}.app.dSYM"
+						fi
+
 						rm -rf /tmp/${build_target}.ipa
 						
 						if [ ! -z "$RSYNC_USER" ] ; then
@@ -112,12 +119,15 @@ for target in *; do
 							rsync -r ${OVER_AIR_INSTALLS_DIR} ${RSYNC_USER}@${XCAB_WEBSERVER_HOSTNAME}:${XCAB_WEBSERVER_XCAB_DIRECTORY_PATH}
 						fi
 					
-						#We're making the implicit assumption here that there aren't going to be a bunch of new changes per run
+						wait_for_idle_dropbox
+
+						#We're making the implicit assumption here that there aren't 
+						#  going to be a bunch of new changes per run
+						#   so it won't spam the user to notify for each one
 						#Notify with Boxcar
 						curl -d "notification[source_url]=${XCAB_WEB_ROOT}/$target/$build_time_human/index.html" -d "notification[message]=New+${target}+Build+available" --user "${BOXCAR_EMAIL}:${BOXCAR_PASSWORD}" https://boxcar.io/notifications
 					fi
 										
-					#TODO put this early so failures don't cause loop
 					echo "$sha" > "$OVER_AIR_INSTALLS_DIR/$target/$build_time_human/sha.txt"
 				fi
 			fi
