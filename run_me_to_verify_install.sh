@@ -31,11 +31,15 @@ fi
 
 if [ "$BOXCAR_EMAIL" == "user@example.com" ] ; then
 	echo "ERROR: Please set BOXCAR_EMAIL in $my_dir/XCAB.settings to a valid value" >&2
+	echo "       install the Boxcar App on your iOS device with pushes allowed" >&2
+	echo "        and set up your Boxcar account with Growl/API enabled" >&2
 	EXIT_STATUS=`expr $EXIT_STATUS + 1`
 fi
 
 if [ "$BOXCAR_PASSWORD" == "YOUR_BOXCAR_PASSWORD_GOES_HERE" ] ; then
 	echo "ERROR: Please set BOXCAR_PASSWORD in $my_dir/XCAB.settings to a valid value" >&2
+	echo "       install the Boxcar App on your iOS device with pushes allowed" >&2
+	echo "        and set up your Boxcar account with Growl/API enabled" >&2
 	EXIT_STATUS=`expr $EXIT_STATUS + 1`
 fi
 
@@ -51,6 +55,14 @@ fi
 
 if [ ! -d "$DROPBOX_HOME" ] ; then
 	echo "ERROR: Cannot find Dropbox directory.  Please set the DROPBOX_HOME variable to the correct value" >&2
+	EXIT_STATUS=`expr $EXIT_STATUS + 1`
+fi
+
+BETA_BUILDER_PATH="`which betabuilder`"
+if [ -z "$BETA_BUILDER_PATH" -o ! -x "$BETA_BUILDER_PATH" ] ; then
+	echo "ERROR: Cannot find betabuilder in PATH" >&2
+	echo "       Get git://github.com/sgruby/iOS-BetaBuilder.git" >&2
+	echo "         and compile and install it" >&2
 	EXIT_STATUS=`expr $EXIT_STATUS + 1`
 fi
 
