@@ -19,6 +19,17 @@ wait_for_idle_dropbox()
 exec<$XCAB_CONF
 while read line 
 do
+	
+	#Ignore comments
+	if [ ! -z "`echo $line | grep '^[ 	]*#'`" ] ; then
+		continue
+	fi
+
+	#If there isn't an equals sign, treat it like a comment
+	if [ -z "`echo $line | grep '='`" ] ; then
+		continue
+	fi
+	
 	src_dir="`echo $line | sed -e 's/=.*$//'`"
 	origin_url="`echo $line | sed -e 's/^[^=]*=//'`"
 

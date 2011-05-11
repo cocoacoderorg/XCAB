@@ -18,7 +18,7 @@ for f in `ls -1tr "$HOME/Library/MobileDevice/Provisioning Profiles/"`; do
 	fi
 done
 
-if [ ! -z "$CODESIGNING_KEYCHAIN" -a ! -z "$CODESIGNING_KEYCHAIN_PASSWORD" -f "$CODESIGNING_KEYCHAIN" ] ; then
+if [ ! -z "$CODESIGNING_KEYCHAIN" -a ! -z "$CODESIGNING_KEYCHAIN_PASSWORD" -a -f "$CODESIGNING_KEYCHAIN" ] ; then
 	security list-keychains -s $CODESIGNING_KEYCHAIN
 	security unlock-keychain -p $CODESIGNING_KEYCHAIN_PASSWORD $CODESIGNING_KEYCHAIN
 	if [ $? -ne 0 ] ; then
