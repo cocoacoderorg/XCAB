@@ -14,7 +14,7 @@ if [ ! -d "${XCAB_HOME}" ] ; then
 	mkdir "${XCAB_HOME}"
 fi
 
-wait_for_idle_dropbox()
+wait_for_idle_dropbox
 				
 exec<$XCAB_CONF
 while read line 
@@ -142,7 +142,7 @@ do
 				git reset --hard $active_branch
 				cd ..
 				
-				wait_for_idle_dropbox()
+				wait_for_idle_dropbox
 				
 				mv tmp_checkout_dir "$entry"
 				cd "$entry"
@@ -171,7 +171,7 @@ do
 						git reset --hard HEAD
 						cd ..
 						
-						wait_for_idle_dropbox()
+						wait_for_idle_dropbox
 
 						mv tmp_checkout_dir "$entry"
 						cd "$entry"
