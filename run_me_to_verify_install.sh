@@ -70,6 +70,15 @@ if [ "$EXIT_STATUS" -eq 0 ] ; then
 		echo "Correcting $DROPBOX_HOME/.com.PDAgent.XCAB.settings file so iOS app can find the right directory" 
 		echo "$XCAB_DROPBOX_PATH" > "$DROPBOX_HOME/.com.PDAgent.XCAB.settings"
 	fi
+	
+	if [ ! -f "$XCAB_CONF" ] ; then
+		echo "# This is the config file for XCAB" > "$XCAB_CONF"
+		echo "# Lines that start with hashes(#) are comments" >> "$XCAB_CONF"
+		echo "# Add lines to this file of the form:" >> "$XCAB_CONF"
+		echo "# DIRECTORY=protocol://path/to/git/repo" >> "$XCAB_CONF"
+		echo "# For example:" >> "$XCAB_CONF"
+		echo "# XCAB=git://github.com/carlbrown/XCAB.git" >> "$XCAB_CONF"
+	fi
 fi
 
 if [ ! -z "$CODESIGNING_KEYCHAIN" -a -f "$CODESIGNING_KEYCHAIN" -a ! -z "$CODESIGNING_KEYCHAIN_PASSWORD" ] ; then
