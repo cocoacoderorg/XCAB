@@ -146,6 +146,10 @@ do
 				
 				mv tmp_checkout_dir "$entry"
 				cd "$entry"
+
+				wait_for_idle_dropbox
+				#Let the user know that we have filled their new directory
+				curl -d "notification[message]=New+${src_dir}+Branch+${entry}+Checked+Out+To+Dropbox" --user "${BOXCAR_EMAIL}:${BOXCAR_PASSWORD}" https://boxcar.io/notifications
 				
 				#Record what we put into Dropbox so if the repo advances, we know the differences aren't the user updating dropbox
 				our_sha="`git rev-parse HEAD`"
