@@ -75,6 +75,7 @@ for target in *; do
 					git checkout -f $candidate
 					git reset --hard $candidate
 					git clean -d -f -x
+					mkdir -p "$OVER_AIR_INSTALLS_DIR/$target/$build_time_human/"
 					#TODO need to figure out a way to indicate that the user wants to build other targets
 					build_target=`xcodebuild -list | awk '$1=="Targets:",$1==""' | grep -v "Targets:" | grep -v "^$" | sed -e 's/^  *//' | head -1`
 					#TODO need to make sure we're building for the device
