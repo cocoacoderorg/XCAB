@@ -15,7 +15,12 @@ if [ ! -d "${XCAB_HOME}" ] ; then
 fi
 
 wait_for_idle_dropbox
-				
+
+#Make sure the XCAB_CONF File ends in a new line, otherwise, `while read line` won't get the last line
+if [ -n "`tail -1c \"$XCAB_CONF\"`" ] ; then 
+	echo "" >> "$XCAB_CONF"
+fi
+	
 exec<$XCAB_CONF
 while read line 
 do
