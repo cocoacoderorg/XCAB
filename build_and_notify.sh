@@ -121,7 +121,26 @@ for target in *; do
 						fi
 					
 						wait_for_idle_dropbox
-
+						
+						#Wait to make sure the file has appeared on the server
+						IPA_STATUS="`curl -sI -X HEAD \"${XCAB_WEB_ROOT}/${target}/$build_time_human/${build_target}.ipa\" | grep HTTP/1.1 | awk '{print $2}'`"
+						PLIST_STATUS="`curl -sI -X HEAD \"${XCAB_WEB_ROOT}/${target}/$build_time_human/manifest.plist\" | grep HTTP/1.1 | awk '{print $2}'`"
+						INDEX_STATUS="`curl -sI -X HEAD \"${XCAB_WEB_ROOT}/${target}/$build_time_human/index.html\" | grep HTTP/1.1 | awk '{print $2}'`"
+						RETRY_COUNT=0
+						while [ "$IPA_STATUS" != "200"  -o "$PLIST_STATUS" != "200"  -o "$INDEX_STATUS" != "200" ] ; do
+							#Wait and try again
+							sleep 15
+							IPA_STATUS="`curl -sI -X HEAD \"${XCAB_WEB_ROOT}/${target}/$build_time_human/${build_target}.ipa\" | grep HTTP/1.1 | awk '{print $2}'`"
+							PLIST_STATUS="`curl -sI -X HEAD \"${XCAB_WEB_ROOT}/${target}/$build_time_human/manifest.plist\" | grep HTTP/1.1 | awk '{print $2}'`"
+							INDEX_STATUS="`curl -sI -X HEAD \"${XCAB_WEB_ROOT}/${target}/$build_time_human/index.html\" | grep HTTP/1.1 | awk '{print $2}'`"
+							RETRY_COUNT="`expr $RETRY_COUNT + 1`"
+							if [ "$RETRY_COUNT" -gt 30 ] ; then
+								echo "Timeout waiting for web server to become ready" >&2
+								curl -d "notification[source_url]=${XCAB_WEB_ROOT}/$target/$build_time_human/index.html" -d "notification[message]=ERROR+Timeout+Waiting+For+Webserver+For+${target}+Build" --user "${BOXCAR_EMAIL}:${BOXCAR_PASSWORD}" https://boxcar.io/notifications
+								exit 4
+							fi
+						done
+						
 						#We're making the implicit assumption here that there aren't 
 						#  going to be a bunch of new changes per run
 						#   so it won't spam the user to notify for each one
