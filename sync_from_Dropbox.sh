@@ -52,12 +52,18 @@ do
 	#If this project doesn't have a corresponding folder in Dropbox, make one
 	if [ ! -d "${XCAB_HOME}/$src_dir" ] ; then
 		mkdir "${XCAB_HOME}/$src_dir"
+		#Generate the list of available branches so the user can find them by looking at Dropbox - 
+		# sort these so the local branches go first, and then are sorted by branch name
+		git branch -a | sed -e 's/^..//' -e 's/ ->.*$//' -e 's,^remotes/,,' | grep -v '/HEAD$' | sort -t / -k 2 -k 1 -k 3 > "${SCM_WORKING_DIR}/${src_dir}_branches.txt"
+		git tag -l | sort > "${SCM_WORKING_DIR}/${src_dir}_tags.txt"
+		#Let the user know their branches list is up to date now
+		curl -d "notification[message]=New+${src_dir}+Project+${entry}+Directory+Added+To+Dropbox" --user "${BOXCAR_EMAIL}:${BOXCAR_PASSWORD}" https://boxcar.io/notifications
+	else
+		#Update the list of available branches so the user can find them by looking at Dropbox - 
+		# sort these so the local branches go first, and then are sorted by branch name
+		git branch -a | sed -e 's/^..//' -e 's/ ->.*$//' -e 's,^remotes/,,' | grep -v '/HEAD$' | sort -t / -k 2 -k 1 -k 3 > "${SCM_WORKING_DIR}/${src_dir}_branches.txt"
+		git tag -l | sort > "${SCM_WORKING_DIR}/${src_dir}_tags.txt"
 	fi
-	
-	#Update the list of available branches so the user can find them by looking at Dropbox - 
-	# sort these so the local branches go first, and then are sorted by branch name
-	git branch -a | sed -e 's/^..//' -e 's/ ->.*$//' -e 's,^remotes/,,' | grep -v '/HEAD$' | sort -t / -k 2 -k 1 -k 3 > "${SCM_WORKING_DIR}/${src_dir}_branches.txt"
-	git tag -l | sort > "${SCM_WORKING_DIR}/${src_dir}_tags.txt"
 	
 	if [ x"`ls -1d *xcodeproj 2>/dev/null`" != x ] ; then
 		#This is an iphone dir, give the user a list of targets they can hit
