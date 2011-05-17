@@ -1,4 +1,8 @@
-﻿This is a set of (at least at the moment) shell scripts that manage a process whereby code can be modified from and uploaded to [Dropbox](http://www.dropbox.com/), at which point a Mac running these scripts will notice the Dropox changes, check those changes into git, build a new iOS executable from the git changes, push that executable to a web page, and send the user an email to come get it.
+﻿This is a set of (at least at the moment) shell scripts that manage a process whereby code can be modified from and uploaded to [Dropbox](http://www.dropbox.com/), at which point a Mac running these scripts will notice the Dropox changes, check those changes into git, build a new iOS executable from the git changes, push that executable to a web page, and send the user a push notification to come get it.
+
+There's a [video demo](http://www.youtube.com/watch?v=kJ9ctI8UBLA) up on YouTube, a [presentation](http://www.slideshare.net/carlbrown/developing-ios-apps-on-your-ipad-with-xcab) on SlideShare that I gave last Thursday to the Austin [CocoaCoder](http://www.cocoacoder.org/CocoaCoder.org/Hello.html) group, if you want more information.
+
+It's MIT licensed, so feel free to try it out and send me feedback or updates via fork requests.  I find it useful, and I hope other people will, too.
 
 I'm currently using BetaBuilder to generate the ipa file, and using the [Boxcar](http://boxcar.io/) API to send push notifications.
 
